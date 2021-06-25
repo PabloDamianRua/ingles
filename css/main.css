@@ -1,0 +1,19 @@
+.container
+{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 30px 500px;
+}
+.head
+{
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    grid-template-rows: 60px;    
+    gap: 10px;
+}
+.intervalos 
+{
+    align-self: center;
+    justify-self: center;
+    grid-template-rows: 60px;
+}

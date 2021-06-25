@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Repaso palabras ingles</title>
+    <link rel="stylesheet" href="css\main.css">
+    <script src="js\main.js" defer></script>
+  </head>
+
+  <body>
+    <div >
+      <input type="file" id="file-input" /> 
+    </div>
+    <div class="head">
+        <div>
+        </div>
+
+        <div class="intervalos">
+          <label for="">Intervalos</label>
+          <input type="number" name="interval" id="interval" value="2"  style="width: 30px;">
+          <input type="button" id="Start" value="Start" onclick="start()">
+          <input type="button" id="Stop" value="Stop" onclick="stop()">
+        </div>
+
+        <div>
+        </div>
+    </div>
+    <div class="container">
+      <div>
+        
+      </div>
+      <div>
+        Ingles:
+        <pre id="contenido-archivo-in"></pre>
+      </div>
+      <div>
+        Español
+        <pre id="contenido-archivo-es"></pre>
+      </div>
+      <div>
+        
+      </div>
+    </div>
+  </body>
+</html>
