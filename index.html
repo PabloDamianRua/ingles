@@ -12,7 +12,9 @@
 
   <body>
     <div >
-      <input type="file" id="file-input" /> 
+      <input type="file" id="file-input" class="custom-file-input" /> 
+      <input type="button" id="Leer" value="Leer" onclick="iniciarLectura()">
+      <input type="button" id="DetenerLeer" value="Dener lectura" onclick="detenerLectura()">
     </div>
     <div class="head">
         <div>
@@ -20,9 +22,10 @@
 
         <div class="intervalos">
           <label for="">Intervalos</label>
-          <input type="number" name="interval" id="interval" value="2"  style="width: 30px;">
-          <input type="button" id="Start" value="Start" onclick="start()">
-          <input type="button" id="Stop" value="Stop" onclick="stop()">
+          <input type="number" name="intervalMin" id="intervalMin" value="00"  style="width: 30px;">
+          <input type="number" name="intervalSeg" id="intervalSeg" value="60"  style="width: 30px;">
+          <input type="button" id="Start" value="Iniciar" onclick="start()">
+          <input type="button" id="Stop" value="Parar" onclick="stop()">
         </div>
 
         <div>

@@ -1,4 +1,11 @@
-.container
+
+body {
+  margin: 0;
+  padding: 2rem 1.5rem;
+  font: 1rem/1.5 "PT Sans", Arial, sans-serif;
+  color: #222121;
+}.container
+
 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

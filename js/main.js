@@ -3,15 +3,18 @@
 var timer;
 var lineas;
 var ultLineaMostrada=0;
+var ultLineaLeida=0;
 var totalDeLineas=0;
 
 let voces;
 let listaVocesCargada = false; 
-let sintetizador = window.speechSynthesis;
-let vozElegida = "Google US English";
+var leyendo = false; 
+var puedoLeerSiguienteLinea = true;
+
+
 document.getElementById('file-input').addEventListener('change', leerArchivo, false);
 
- function getVozElegida() {
+ function getVozElegida(vozElegida) {
    
     return voces.find(function(voz){
         return voz.name == vozElegida;
@@ -19,6 +22,7 @@ document.getElementById('file-input').addEventListener('change', leerArchivo, fa
 };
 function vocesCargadas() {
     if (!listaVocesCargada) {
+        var sintetizador = window.speechSynthesis;
         voces = sintetizador.getVoices();
         if (voces.length > 0) {
             voces.forEach( v => {
@@ -32,36 +36,60 @@ function vocesCargadas() {
     }
 }
 
-function hablar(txt) {
+function hablarEnIngles(txt) {
+    var sintetizador = window.speechSynthesis;
+    
     if (!sintetizador) {
         return; //No soportado 
     }
-    
+
     if (sintetizador.speaking) {
         sintetizador.cancel();
     }
-    else {
-        if (txt) {
-            vocesCargadas();
-            let declaracion = new SpeechSynthesisUtterance(txt);
-            declaracion.voice =getVozElegida() ;
-            declaracion.lang = declaracion.voice.lang;  //Necesario en móviles
-            declaracion.rate = 0.7; //Velocidad
-            declaracion.pitch = 1;
-
-            sintetizador.speak(declaracion);
-        }
+    
+    if (txt) {
+        vocesCargadas();
+        let declaracion = new SpeechSynthesisUtterance(txt);
+        declaracion.voice =getVozElegida("Google US English") ;
+        //declaracion.lang = declaracion.voice.lang;  //Necesario en móviles
+        declaracion.rate = 0.7; //Velocidad
+        declaracion.pitch = 1;
+        leyendo = true;
+        sintetizador.speak(declaracion);
+        esperarFinalizaLectura(sintetizador);
     }
 }
 
+function hablarEnEsp(txt) {
+    var sintetizador = window.speechSynthesis;
+  
+    if (!sintetizador) {
+        return; //No soportado 
+    }
+
+    if (sintetizador.speaking) {
+        sintetizador.cancel();
+    }
+    
+    if (txt) {
+        vocesCargadas();
+        let declaracion = new SpeechSynthesisUtterance(txt);
+        declaracion.voice =getVozElegida("Microsoft Laura - Spanish (Spain)") ;
+        //declaracion.lang = declaracion.voice.lang;  //Necesario en móviles
+        declaracion.rate = 0.7; //Velocidad
+        declaracion.pitch = 1;
+        leyendo = true;
+        sintetizador.speak(declaracion);
+        esperarFinalizaLectura(sintetizador);
+    }
+}
 function notificacion(ingles, español) {
 if (Notification) 
 {
-    vozElegida = "Google US English";
-    hablar(ingles);
+    
+    hablarEnIngles(ingles);
 
-    vozElegida = "Microsoft Laura - Spanish (Spain)";
-    setTimeout( function() { hablar(español) }, 1000)
+    setTimeout( function() { hablarEnEsp(español) }, 100)
 
     if (Notification.permission !== "granted") 
     {
@@ -88,10 +116,10 @@ function generarNotificaciones()
 {
     var lineaActual=0;
     for(var linea of lineas) {
-    if(ultLineaMostrada === totalDeLineas)
-    {
-        ultLineaMostrada =0;   
-    }
+        if(ultLineaMostrada === totalDeLineas)
+        {
+            ultLineaMostrada =0;   
+        }
         lineaActual = lineaActual +1;
         if(lineaActual >ultLineaMostrada)
         {
@@ -101,7 +129,6 @@ function generarNotificaciones()
             break;
         }
     }
-
 }
 
 function traduccion(palabra)
@@ -112,11 +139,16 @@ function traduccion(palabra)
 
 function start()
 {
-    const intervalo = Number.parseInt(document.getElementById('interval').value); 
+    const intervaloSeg = Number.parseInt(document.getElementById('intervalSeg').value); 
+    const intervaloMin = Number.parseInt(document.getElementById('intervalMin').value); 
     
-    if(Number.isInteger(intervalo))
+    if(Number.isInteger(intervaloSeg) && Number.isInteger(intervaloMin))
     {
-        timer = setInterval('generarNotificaciones()',intervalo * 60000);
+        if(intervaloMin > 0)
+        {
+            intervaloSeg = intervaloMin * 60 + intervaloSeg;
+        }
+        timer = setInterval('generarNotificaciones()', intervaloSeg * 1000);
     }
     else
     {
@@ -163,3 +195,62 @@ function mostrarContenido(contenido) {
   ing.innerHTML = palabrasIng;
   esp.innerHTML = palabraEsp;
 }
+
+function iniciarLectura()
+{
+    timerLectura = setInterval('lectura()', 3000);
+}
+
+function detenerLectura()
+{
+    clearInterval(timerLectura);
+}
+function lectura()
+{
+    if(puedoLeerSiguienteLinea == true)
+    {
+        var lineaActual=0;
+        for(var linea of lineas) {
+            if(ultLineaLeida === totalDeLineas)
+            {
+                ultLineaLeida =0;   
+            }
+            lineaActual = lineaActual +1;
+            if(lineaActual >ultLineaLeida)
+            {
+                ultLineaLeida = ultLineaLeida + 1;
+                var palabra = linea.split("|");
+                var spa = palabra[1];
+                var ing = palabra[0];
+                puedoLeerSiguienteLinea = false;
+                
+                hablarEnIngles(ing);
+                esperar(2000);
+                hablarEnEsp(spa);
+                esperar(2000);
+                puedoLeerSiguienteLinea = true;
+                break;
+            }
+        }
+    }
+}
+
+function esperar(delay) {
+    var start = new Date().getTime();
+    while (new Date().getTime() < start + delay);
+  }
+
+  function  esperarFinalizaLectura(sintetizador)
+  {
+      var start = new Date().getTime();
+
+      while(new Date().getTime() < start + 50000)
+      {
+          debugger;
+          if(sintetizador.pending == false)
+          {
+              leyendo = false;
+              break;
+          }
+      };
+  }
