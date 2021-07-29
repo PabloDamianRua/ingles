@@ -1,27 +1,29 @@
-   
-
 var timer;
 var lineas;
 var ultLineaMostrada=0;
 var ultLineaLeida=0;
 var totalDeLineas=0;
-
 let voces;
-let listaVocesCargada = false; 
+let voiceListLoaded = false; 
 var leyendo = false; 
 var puedoLeerSiguienteLinea = true;
-
+var textoLectura ="";
+var repeticiones =0;
+var timerLectura;
+var timerWords;
+var word1;
+var word2;
 
 document.getElementById('file-input').addEventListener('change', leerArchivo, false);
 
- function getVozElegida(vozElegida) {
+ function getvoiceChoosed(voiceChoosed) {
    
     return voces.find(function(voz){
-        return voz.name == vozElegida;
+        return voz.name == voiceChoosed;
     });
 };
-function vocesCargadas() {
-    if (!listaVocesCargada) {
+function voiceChoosed() {
+    if (!voiceListLoaded) {
         var sintetizador = window.speechSynthesis;
         voces = sintetizador.getVoices();
         if (voces.length > 0) {
@@ -31,12 +33,12 @@ function vocesCargadas() {
                 if (v.default) optVoz.selected = true;
                 optVoz.setAttribute('data-voz', v.name);
             });
-            listaVocesCargada = true;
+            voiceListLoaded = true;
         }
     }
 }
 
-function hablarEnIngles(txt) {
+function speakInEnglish(txt) {
     var sintetizador = window.speechSynthesis;
     
     if (!sintetizador) {
@@ -48,19 +50,18 @@ function hablarEnIngles(txt) {
     }
     
     if (txt) {
-        vocesCargadas();
+        voiceChoosed();
         let declaracion = new SpeechSynthesisUtterance(txt);
-        declaracion.voice =getVozElegida("Google US English") ;
-        //declaracion.lang = declaracion.voice.lang;  //Necesario en móviles
-        declaracion.rate = 0.7; //Velocidad
+        declaracion.voice =getvoiceChoosed("Google US English") ;
+        declaracion.rate = 0.7; //Speed
         declaracion.pitch = 1;
         leyendo = true;
         sintetizador.speak(declaracion);
-        esperarFinalizaLectura(sintetizador);
+        waitForTheEndOfTheReading(sintetizador);
     }
 }
 
-function hablarEnEsp(txt) {
+function speakInSpanish(txt) {
     var sintetizador = window.speechSynthesis;
   
     if (!sintetizador) {
@@ -72,24 +73,21 @@ function hablarEnEsp(txt) {
     }
     
     if (txt) {
-        vocesCargadas();
+        voiceChoosed();
         let declaracion = new SpeechSynthesisUtterance(txt);
-        declaracion.voice =getVozElegida("Microsoft Laura - Spanish (Spain)") ;
-        //declaracion.lang = declaracion.voice.lang;  //Necesario en móviles
-        declaracion.rate = 0.7; //Velocidad
+        declaracion.voice =getvoiceChoosed("Microsoft Laura - Spanish (Spain)") ;
+        declaracion.rate = 0.7; //Speed
         declaracion.pitch = 1;
         leyendo = true;
         sintetizador.speak(declaracion);
-        esperarFinalizaLectura(sintetizador);
+        waitForTheEndOfTheReading(sintetizador);
     }
 }
+
 function notificacion(ingles, español) {
 if (Notification) 
 {
-    
-    hablarEnIngles(ingles);
-
-    setTimeout( function() { hablarEnEsp(español) }, 100)
+    speakInEnglish(ingles);
 
     if (Notification.permission !== "granted") 
     {
@@ -102,7 +100,7 @@ if (Notification)
     }
     var noti = new Notification( ingles, options)
     noti.onclick = function () {
-        traduccion(ingles);
+        traduction(ingles);
     };
 
     noti.onclose = {
@@ -131,30 +129,39 @@ function generarNotificaciones()
     }
 }
 
-function traduccion(palabra)
+function traduction(word)
 {
-    var url = 'https://translate.google.com.ar/?hl=es&sl=en&tl=es&text=' + palabra +'&op=translate';
+    debugger;
+    var url = document.getElementById("translator").value.replace("@WordToTraslate", word) ; 
     window.open(url, "nombre de la ventana", "width=700, height=600");
 }
 
 function start()
 {
-    const intervaloSeg = Number.parseInt(document.getElementById('intervalSeg').value); 
-    const intervaloMin = Number.parseInt(document.getElementById('intervalMin').value); 
-    
-    if(Number.isInteger(intervaloSeg) && Number.isInteger(intervaloMin))
+    if(totalDeLineas> 0)
     {
-        if(intervaloMin > 0)
+        const intervaloSeg = Number.parseInt(document.getElementById('intervalSeg').value); 
+        const intervaloMin = Number.parseInt(document.getElementById('intervalMin').value); 
+        
+        if(Number.isInteger(intervaloSeg) && Number.isInteger(intervaloMin))
         {
-            intervaloSeg = intervaloMin * 60 + intervaloSeg;
+            if(intervaloMin > 0)
+            {
+                intervaloSeg = intervaloMin * 60 + intervaloSeg;
+            }
+            timer = setInterval('generarNotificaciones()', intervaloSeg * 1000);
         }
-        timer = setInterval('generarNotificaciones()', intervaloSeg * 1000);
+        else
+        {
+            alert("Por favor ingresar numero entero");
+        }
     }
     else
     {
-        alert("Por favor ingresar numero entero");
+        alert("You didn't select a file of words. Please, need to select a file words.")
     }
 }
+
 
 function stop()
 {
@@ -196,17 +203,28 @@ function mostrarContenido(contenido) {
   esp.innerHTML = palabraEsp;
 }
 
-function iniciarLectura()
+function startReading()
 {
-    timerLectura = setInterval('lectura()', 3000);
+    if(totalDeLineas> 0)
+    {
+        timerWords = setInterval('getReadingWords()', 2000);
+        timerLectura = setInterval('read()', 3000);
+    }
+    else
+    {
+        alert("You didn't select a file of words. Please, need to select a file words.")
+    }
 }
 
-function detenerLectura()
+function stoptReading()
 {
+    clearInterval(timerWords);
     clearInterval(timerLectura);
 }
-function lectura()
+
+function getReadingWords()
 {
+    var textoLecturaActual = document.getElementById('lecto');
     if(puedoLeerSiguienteLinea == true)
     {
         var lineaActual=0;
@@ -216,37 +234,49 @@ function lectura()
                 ultLineaLeida =0;   
             }
             lineaActual = lineaActual +1;
-            if(lineaActual >ultLineaLeida)
+            if(lineaActual > ultLineaLeida)
             {
+                repeticiones = repeticiones + 1;
+                if(repeticiones < 3)
+                {
+                    ultLineaLeida = ultLineaLeida - 1;
+                }
+                else
+                {
+                    repeticiones=0;
+                }
+
                 ultLineaLeida = ultLineaLeida + 1;
                 var palabra = linea.split("|");
-                var spa = palabra[1];
-                var ing = palabra[0];
-                puedoLeerSiguienteLinea = false;
-                
-                hablarEnIngles(ing);
-                esperar(2000);
-                hablarEnEsp(spa);
-                esperar(2000);
-                puedoLeerSiguienteLinea = true;
+                word1 = palabra[0];
+                word2 = palabra[1];
+                textoLecturaActual.innerHTML =  "<p>"+ word1 + " - " + word2 + "</p>";
+                wait(1000);
                 break;
             }
         }
     }
 }
+function read()
+{
+    puedoLeerSiguienteLinea = false;
+    speakInEnglish(word1);
+    wait(2000);
+    speakInSpanish(word2);
+    wait(2000);
+    puedoLeerSiguienteLinea = true;
+}
 
-function esperar(delay) {
+function wait(delay) {
     var start = new Date().getTime();
     while (new Date().getTime() < start + delay);
   }
-
-  function  esperarFinalizaLectura(sintetizador)
+  function  waitForTheEndOfTheReading(sintetizador)
   {
       var start = new Date().getTime();
 
       while(new Date().getTime() < start + 50000)
       {
-          debugger;
           if(sintetizador.pending == false)
           {
               leyendo = false;
@@ -254,3 +284,18 @@ function esperar(delay) {
           }
       };
   }
+
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}

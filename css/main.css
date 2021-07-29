@@ -11,6 +11,15 @@ body {
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: 30px 500px;
 }
+.divlectura
+{
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 60px;    
+    font-size:xx-large;
+    gap: 10px;
+    text-align: center;
+}
 .head
 {
     display: grid;
@@ -18,9 +27,34 @@ body {
     grid-template-rows: 60px;    
     gap: 10px;
 }
-.intervalos 
+.interval 
 {
     align-self: center;
     justify-self: center;
     grid-template-rows: 60px;
 }
+
+.collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+  }
+  
+  /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+  .active, .collapsible:hover {
+    background-color: #ccc;
+  }
+  
+  /* Style the collapsible content. Note: hidden by default */
+  .content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #f1f1f1;
+  }

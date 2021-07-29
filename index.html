@@ -11,40 +11,56 @@
   </head>
 
   <body>
-    <div >
-      <input type="file" id="file-input" class="custom-file-input" /> 
-      <input type="button" id="Leer" value="Leer" onclick="iniciarLectura()">
-      <input type="button" id="DetenerLeer" value="Dener lectura" onclick="detenerLectura()">
-    </div>
-    <div class="head">
+    <button onclick="document.getElementById('file-input').click()">Select file of words</button>
+    <input type="file" id="file-input" class="custom-file-input" style="display:none"/> 
+    <button type="button" class="collapsible">Read</button>
+    <div class="content">
+      <div class="head">
         <div>
+          <input type="button" id="Leer" value="Start reading" onclick="startReading()">
+          <input type="button" id="DetenerLeer" value="Stop reading" onclick="stoptReading()">
         </div>
+      </div>
+    </div>
 
-        <div class="intervalos">
-          <label for="">Intervalos</label>
+    <button type="button" class="collapsible">Notifications</button>
+    <div class="content">
+      <div class="head">
+        <div class="interval">
+          <label for="">interval for notifications</label>
           <input type="number" name="intervalMin" id="intervalMin" value="00"  style="width: 30px;">
           <input type="number" name="intervalSeg" id="intervalSeg" value="60"  style="width: 30px;">
-          <input type="button" id="Start" value="Iniciar" onclick="start()">
-          <input type="button" id="Stop" value="Parar" onclick="stop()">
-        </div>
 
-        <div>
+          <label for="translator">Choose your preferred translator:</label>
+          <select id="translator">
+            <option value="https://translate.google.com.ar/?hl=es&sl=en&tl=es&text=@WordToTraslate&op=translate">translate.google.com</option>
+            <option value="https://www.wordreference.com/es/translation.asp?tranword=@WordToTraslate">wordreference.com</option>
+          </select>
+
+          <input type="button" id="Start" value="Start" onclick="start()">
+          <input type="button" id="Stop" value="Stop" onclick="stop()">
+        </div>
+      <div>
+            </div>
         </div>
     </div>
+
+    <div class="divlectura" id="lecto">
+    </div>
+    <br>
+    <br>
     <div class="container">
       <div>
-        
       </div>
       <div>
-        Ingles:
+        words in english:
         <pre id="contenido-archivo-in"></pre>
       </div>
       <div>
-        Español
+        words in spanish:
         <pre id="contenido-archivo-es"></pre>
       </div>
       <div>
-        
       </div>
     </div>
   </body>
